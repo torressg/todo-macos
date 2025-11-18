@@ -13,5 +13,6 @@ struct todo_macosApp: App {
         WindowGroup {
             ContentView()
         }
+        .defaultSize(width: 600, height: 600)
     }
 }
