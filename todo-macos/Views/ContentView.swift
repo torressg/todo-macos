@@ -30,12 +30,23 @@ struct ContentView: View {
                 List {
                     ForEach(vm.subjects) { subject in
                         NavigationLink(value: subject.id) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(subject.title)
-                                    .font(.headline)
-                                Text("\(subject.tasks.count) tasks")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(subject.title)
+                                        .font(.headline)
+                                    Text("\(subject.tasks.count) tasks")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Button {
+                                    vm.removeSubject(subject.id)
+                                } label: {
+                                    Image(systemName: "trash")
+                                }
+                                .buttonStyle(.borderless)
                             }
                         }
                     }
