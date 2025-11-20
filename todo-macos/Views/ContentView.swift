@@ -55,7 +55,7 @@ struct ContentView: View {
             .navigationDestination(for: UUID.self) { subjectId in
                 SubjectDetailView(subjectId: subjectId, viewModel: vm)
             }
-            .navigationTitle("Subjects")
+            .navigationTitle("To-Do List")
         }
     }
 }

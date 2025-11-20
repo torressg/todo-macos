@@ -48,56 +48,54 @@ struct SubjectDetailView: View {
                     }
                 }
             }
-            .navigationTitle("Subjects")
+            .navigationTitle("To-Do List")
         } detail: {
             Group {
                 if let subject = selectedSubject {
-                    NavigationStack {
-                        VStack(alignment: .leading, spacing: 0) {
-                            HStack {
-                                TextField("New task...", text: $newTaskTitle)
-                                    .textFieldStyle(.roundedBorder)
-                                    .onSubmit {
-                                        addTask()
-                                    }
-                                
-                                Button("Add") {
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack {
+                            TextField("New task...", text: $newTaskTitle)
+                                .textFieldStyle(.roundedBorder)
+                                .onSubmit {
                                     addTask()
                                 }
-                            }
-                            .padding()
                             
-                            List {
-                                ForEach(subject.tasks) { task in
-                                    HStack {
-                                        Button {
-                                            toggle(task)
-                                        } label: {
-                                            Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
-                                        }
-                                        .buttonStyle(.borderless)
-                                        
-                                        Text(task.title)
-                                            .strikethrough(task.isDone)
-                                        
-                                        Button {
-                                            if let subjectIndex = vm.subjects.firstIndex(where: { $0.id == subject.id }),
-                                                let taskIndex = vm.subjects[subjectIndex].tasks.firstIndex(where: { $0.id == task.id }) {
-                                                    vm.removeTasks(at: IndexSet(integer: taskIndex), from: subject.id)
-                                            }
-                                        } label: {
-                                            Image(systemName: "trash")
-                                        }
-                                        .buttonStyle(.borderless)
-                                    }
-                                }
-                                .onDelete { offsets in
-                                    vm.removeTasks(at: offsets, from: subject.id)
-                                }
+                            Button("Add") {
+                                addTask()
                             }
                         }
-                        .navigationTitle(subject.title)
+                        .padding()
+                        
+                        List {
+                            ForEach(subject.tasks) { task in
+                                HStack {
+                                    Button {
+                                        toggle(task)
+                                    } label: {
+                                        Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
+                                    }
+                                    .buttonStyle(.borderless)
+                                    
+                                    Text(task.title)
+                                        .strikethrough(task.isDone)
+                                    
+                                    Button {
+                                        if let subjectIndex = vm.subjects.firstIndex(where: { $0.id == subject.id }),
+                                            let taskIndex = vm.subjects[subjectIndex].tasks.firstIndex(where: { $0.id == task.id }) {
+                                            vm.removeTasks(at: IndexSet(integer: taskIndex), from: subject.id)
+                                        }
+                                    } label: {
+                                        Image(systemName: "trash")
+                                    }
+                                    .buttonStyle(.borderless)
+                                }
+                            }
+                            .onDelete { offsets in
+                                vm.removeTasks(at: offsets, from: subject.id)
+                            }
+                        }
                     }
+                    .navigationTitle(subject.title)
                 } else {
                     Text("Selecione um subject")
                         .foregroundColor(.secondary)
