@@ -3,53 +3,48 @@ import SwiftUI
 struct ContentView: View {
 
     @StateObject var vm = TodoViewModel()
-    @State private var newTask = ""
+    @State private var newSubjectTitle = ""
     
-    func addTask() {
-        guard !newTask.isEmpty else { return }
-        vm.add(title: newTask)
-        newTask = ""
+    func createSubject() {
+        guard !newSubjectTitle.isEmpty else { return }
+        vm.createSubject(title: newSubjectTitle)
+        newSubjectTitle = ""
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
-
-            HStack {
-                TextField("New task...", text: $newTask)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit {
-                        addTask()
-                    }
-
-                Button("Add") {
-                    addTask()
-                }
-            }
-            .padding()
-
-            List {
-                ForEach(vm.todos) { todo in
-                    HStack {
-                        Button {
-                            toggle(todo)
-                        } label: {
-                            Image(systemName: todo.isDone ? "checkmark.circle.fill" : "circle")
+        NavigationStack {
+            VStack(alignment: .leading) {
+                HStack {
+                    TextField("New subject...", text: $newSubjectTitle)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit {
+                            createSubject()
                         }
-                        .buttonStyle(.borderless)
 
-                        Text(todo.title)
-                            .strikethrough(todo.isDone)
+                    Button("Create") {
+                        createSubject()
                     }
                 }
-                .onDelete(perform: vm.remove)
-            }
-        }
-        .padding()
-    }
+                .padding()
 
-    func toggle(_ todo: Todo) {
-        if let index = vm.todos.firstIndex(where: { $0.id == todo.id }) {
-            vm.todos[index].isDone.toggle()
+                List {
+                    ForEach(vm.subjects) { subject in
+                        NavigationLink(value: subject.id) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(subject.title)
+                                    .font(.headline)
+                                Text("\(subject.tasks.count) tasks")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationDestination(for: UUID.self) { subjectId in
+                SubjectDetailView(subjectId: subjectId, viewModel: vm)
+            }
+            .navigationTitle("Subjects")
         }
     }
 }

@@ -4,9 +4,9 @@ import SwiftUI
 
 class TodoViewModel: ObservableObject {
 
-    private let storageKey = "todos_storage"
+    private let storageKey = "subjects_storage"
 
-    @Published var todos: [Todo] = [] {
+    @Published var subjects: [TodoSubject] = [] {
         didSet {
             save()
         }
@@ -16,25 +16,37 @@ class TodoViewModel: ObservableObject {
         load()
     }
 
-    func add(title: String) {
-        let newTodo = Todo(title: title)
-        todos.append(newTodo)
+    func createSubject(title: String) {
+        let newSubject = TodoSubject(title: title)
+        subjects.append(newSubject)
     }
 
-    func remove(at offsets: IndexSet) {
-        todos.remove(atOffsets: offsets)
+    func addTask(subjectId: UUID, task: Todo) {
+        if let index = subjects.firstIndex(where: { $0.id == subjectId }) {
+            subjects[index].tasks.append(task)
+        }
+    }
+
+    func removeTasks(at offsets: IndexSet, from subjectId: UUID) {
+        if let subjectIndex = subjects.firstIndex(where: { $0.id == subjectId }) {
+            subjects[subjectIndex].tasks.remove(atOffsets: offsets)
+        }
+    }
+    
+    func removeSubject(_ subjectId: UUID) {
+        subjects.removeAll(where: { $0.id == subjectId })
     }
 
     private func save() {
-        if let encoded = try? JSONEncoder().encode(todos) {
+        if let encoded = try? JSONEncoder().encode(subjects) {
             UserDefaults.standard.set(encoded, forKey: storageKey)
         }
     }
 
     private func load() {
         if let data = UserDefaults.standard.data(forKey: storageKey),
-           let decoded = try? JSONDecoder().decode([Todo].self, from: data) {
-            todos = decoded
+           let decoded = try? JSONDecoder().decode([TodoSubject].self, from: data) {
+            subjects = decoded
         }
     }
 }
