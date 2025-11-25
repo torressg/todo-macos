@@ -5,6 +5,7 @@ struct SubjectDetailView: View {
     @ObservedObject var vm: TodoViewModel
     @State private var selectedSubjectId: UUID?
     @State private var newTaskTitle = ""
+    @State private var showCompletedTasks = true
     
     let initialSubjectId: UUID
     
@@ -16,6 +17,15 @@ struct SubjectDetailView: View {
     
     var selectedSubject: TodoSubject? {
         vm.subjects.first(where: { $0.id == selectedSubjectId })
+    }
+    
+    var filteredTasks: [Todo] {
+        guard let subject = selectedSubject else { return [] }
+        if showCompletedTasks {
+            return subject.tasks
+        } else {
+            return subject.tasks.filter { !$0.isDone }
+        }
     }
     
     func addTask() {
@@ -67,7 +77,10 @@ struct SubjectDetailView: View {
                         .padding()
                         
                         List {
-                            ForEach(subject.tasks) { task in
+                            Toggle("Mostrar tarefas concluídas", isOn: $showCompletedTasks)
+                                .padding(.vertical, 4)
+                            
+                            ForEach(filteredTasks) { task in
                                 HStack {
                                     Button {
                                         toggle(task)
@@ -91,7 +104,14 @@ struct SubjectDetailView: View {
                                 }
                             }
                             .onDelete { offsets in
-                                vm.removeTasks(at: offsets, from: subject.id)
+                                let tasksToDelete = filteredTasks
+                                for offset in offsets {
+                                    let taskToDelete = tasksToDelete[offset]
+                                    if let subjectIndex = vm.subjects.firstIndex(where: { $0.id == subject.id }),
+                                        let taskIndex = vm.subjects[subjectIndex].tasks.firstIndex(where: { $0.id == taskToDelete.id }) {
+                                        vm.removeTasks(at: IndexSet(integer: taskIndex), from: subject.id)
+                                    }
+                                }
                             }
                         }
                     }
